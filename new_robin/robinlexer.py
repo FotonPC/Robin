@@ -47,7 +47,7 @@ def lns(string):
         #print(0,i)
     return keyl    
 def isalpha(char):
-    return char.lower() in list('abcdefghjiklmnoprstqwyxzuйцукенгшщзхъфывапролджэячсмитьбю')
+    return char.lower() in list('_abcdefghjiklmnoprstqwyxzuйцукенгшщзхъфывапролджэячсмитьбю')
 def isalphastring(string):
     for char in string:
         if not isalpha(char):
@@ -77,13 +77,13 @@ def indexlex(i,string):
                 return string[i:res:],res
         return string[i::],len(string)
     if isalpha(string[i]):
-        for c in range(i,len(string)-1):
+        for c in range(i,len(string)):
             if not isalpha(string[c]):
                 res=c
                 return string[i:res:],res
         return string[i::],len(string)
     if isoper(string[i]):
-        for c in range(i,len(string)-1):
+        for c in range(i,len(string)):
             if not isoper(string[c]):
                 res=c
                 return string[i:res:],res
@@ -99,4 +99,5 @@ def indexlex(i,string):
     #print(2,res,string[i:res:])
     return string[i:res:],res
 if __name__=='__main__':
-    print(lexer(input()))
+    while True:
+        print(lexer(input()))

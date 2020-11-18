@@ -1,26 +1,23 @@
 import random
+import sys
+import traceback
 import robinoldlib as robin
 import robincalc as rocalc
 import robinerror as roerror
 import robinlexer as rolexer
+import robinversionapi as versionapi
 from robincounst import *
 
 
 def superslice(listi, b, e=-1, p=0):
-    if len(listi)==1: return listi[0][p]
-    if e==1-1 and b==0: a=listi
-    elif b==0: a = listi[:e:]
-    elif e==1-1: a=listi[b::]
+    if e==-1: a=listi[b::]
     else: a=listi[b:e:]
-    res = []
-    i = 0
-    
-    while i < len(a):
-        res += [str(a[i][p])]
-        i += 1
+    res=[]
+    i=0
+    while i<len(a):
+        res+=[a[i][p]]
+        i+=1
     return res
-
-
 class DataVar:
     def __init__(self):
         self.date = []
@@ -177,7 +174,7 @@ class Robin:
                 estr[i][1] = '"' + estr[i][1] + '"'
             i+=1
             print(estr)
-        return ''.join(superslice(estr,0,-1,1))
+        return ''.join(map(str,superslice(estr,0,-1,1)))
 
     def __exec__(self, i=0, block=0):
         lc = len(self.code)
@@ -449,7 +446,7 @@ class Robin:
                                 exit(1)
                     elif name == 'goto':
                         try:
-                            i = rocalc.evalstr(self.build_evalstr(self.preproccesor(string, i + 1, lexstr[1::]))) - 1
+                            i = rocalc.evalstr(self.build_evalstr(self.preproccesor(string, i + 1, lexstr[1::]))) - 2
                         except roerror.RoExitError:
                             exit(1)
                         except:
@@ -486,18 +483,20 @@ class Robin:
                                     except:
                                         exit(1)
                                     stringi = self.build_evalstr(stringi)
+                                    print('STRINGI 1:',stringi)
                                     try:
                                         stringi = rocalc.evalstr(stringi)
+                                        print('EVALSTR 1:',stringi)
                                     except:
                                         try:
                                             roerror.Ro_SintaxError(i + 1, 'Sintax error!', string)
                                         except:
                                             exit(1)
-                                    if string.__class__.__name__ == 'int':
+                                    if stringi.__class__.__name__ == 'int':
                                         self.__newobj__('int', stringi, lexstr[0][1], i + 1, string)
-                                    if string.__class__.__name__ == 'float':
+                                    if stringi.__class__.__name__ == 'float':
                                         self.__newobj__('float', stringi, lexstr[0][1], i + 1, string)
-                                    if string.__class__.__name__ == 'bool':
+                                    if stringi.__class__.__name__ == 'bool':
                                         self.__newobj__('bool', stringi, lexstr[0][1], i + 1, string)
                             else:
                                 bex = lexstr[2::]
@@ -519,6 +518,19 @@ class Robin:
                                                                                          i + 1, string)
                                 if stringi.__class__.__name__ == 'bool': self.__newobj__('bool', stringi, lexstr[0][1],
                                                                                         i + 1, string)
+                        elif lexstr[1][1] == '++':
+                            v = self.data.find_value_with_name(lexstr[0][1], i + 1, string)
+                            try:
+                                v+=1
+                            except TypeError:
+                                try: roerroe.Ro_TypeError(i+1,'Must be integer type!',string)
+                                except: exit(1)
+                            self.__newobj__('int', v, lexstr[0][1], i + 1, string)
+                        else:
+                            try:
+                                roerror.Ro_SintaxError(i + 1, 'Bad sintax!', string)
+                            except:
+                                exit(1)
                 elif lexstr[0][1] == '    ':
                     # block code
                     pass
@@ -541,13 +553,14 @@ class Robin:
 
 
 if __name__ == '__main__':
+    print(versionapi.return_version())
     ro = Robin()
     while (True):
-        if True:
-        #try:
+        #if True:
+        try:
             inp = input('>>>')
             ro.__loadcode__(inp)
             ro.__lexer__()
             ro.__exec__()
-        #except:
-            #print('Exit 1')
+        except:
+            print(traceback.format_exc())

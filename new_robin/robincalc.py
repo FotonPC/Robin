@@ -54,7 +54,10 @@ def np(string):
         re=sind(string,'**')
         return np(string[0:re])**np(string[re+2:len(string)-1])
     else:
-        return int(string)
+        if not '.' in string:
+            return int(string)
+        else:
+            return float(string)
 def sind(string,sstr):
     i=0
     while i<len(string)-1:
